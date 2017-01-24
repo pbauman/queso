@@ -28,6 +28,8 @@
 #include <queso/GslMatrix.h>
 #include <queso/VectorSet.h>
 #include <queso/LikelihoodBase.h>
+#include <queso/VectorRV.h>
+#include <queso/MultiDQuadratureBase.h>
 
 namespace QUESO {
 
@@ -38,6 +40,25 @@ LikelihoodBase<V, M>::LikelihoodBase(
   : BaseScalarFunction<V, M>(prefix, domainSet),
     m_observations(observations)
 {
+}
+
+template<class V, class M>
+LikelihoodBase<V, M>::LikelihoodBase(const char * prefix,
+                                     const VectorSet<V, M> & domainSet,
+                                     const V & observations,
+                                     typename SharedPtr<BaseVectorRV<V,M> >::Type & marg_param_pdf,
+                                     typename SharedPtr<MultiDQuadratureBase<V,M> >::Type & marg_integration,
+                                     bool marg_pdf_is_weight_func)
+  : BaseScalarFunction<V, M>(prefix, domainSet),
+  m_observations(observations),
+  m_marg_param_pdf(marg_param_pdf),
+  m_marg_integration(marg_integration),
+  m_marg_pdf_is_weight_func(marg_pdf_is_weight_func)
+{
+  // The dimension of the parameter space had better match the dimension in the integration
+  queso_require_equal_to_msg(this->m_marg_param_pdf->imageSet().vectorSpace().dimGlobal(),
+                             this->m_marg_integration->getDomain().vectorSpace().dimGlobal(),
+                             "Mismatched marginal parameter space dimension and quadrature dimension!");
 }
 
 template<class V, class M>
