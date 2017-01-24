@@ -62,8 +62,10 @@ public:
   virtual ~GaussianLikelihoodFullCovariance();
   //@}
 
-  //! Logarithm of the value of the scalar function.
-  virtual double lnValue(const V & domainVector) const;
+protected:
+
+  //! Logarithm of the value of the likelihood function.
+  virtual double lnLikelihood(const V & domainVector, V & modelOutput) const;
 
 private:
   double m_covarianceCoefficient;

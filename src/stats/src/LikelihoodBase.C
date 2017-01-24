@@ -59,6 +59,17 @@ void LikelihoodBase<V, M>::evaluateModel(const V & domainVector, const V * domai
   queso_error_msg(ss.str());
 }
 
+template<class V, class M>
+double
+LikelihoodBase<V, M>::lnValue(const V & domainVector) const
+{
+  V modelOutput(this->m_observations, 0, 0);  // At least it's not a copy
+
+  this->evaluateModel(domainVector, modelOutput);
+
+  return this->lnLikelihood(domainVector, modelOutput);
+}
+
 }  // End namespace QUESO
 
 template class QUESO::LikelihoodBase<QUESO::GslVector, QUESO::GslMatrix>;

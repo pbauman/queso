@@ -70,8 +70,10 @@ public:
   //! Get (const) multiplicative coefficient for block \c i
   const double & getBlockCoefficient(unsigned int i) const;
 
-  //! Logarithm of the value of the scalar function.
-  virtual double lnValue(const V & domainVector) const;
+protected:
+
+  //! Logarithm of the value of the likelihood function.
+  virtual double lnLikelihood(const V & domainVector, V & modelOutput) const;
 
 private:
   std::vector<double> m_covarianceCoefficients;

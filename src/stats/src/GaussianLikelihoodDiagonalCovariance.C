@@ -50,12 +50,8 @@ GaussianLikelihoodDiagonalCovariance<V, M>::~GaussianLikelihoodDiagonalCovarianc
 
 template<class V, class M>
 double
-GaussianLikelihoodDiagonalCovariance<V, M>::lnValue(const V & domainVector) const
+GaussianLikelihoodDiagonalCovariance<V, M>::lnLikelihood(const V & domainVector, V & modelOutput) const
 {
-  V modelOutput(this->m_observations, 0, 0);  // At least it's not a copy
-
-  this->evaluateModel(domainVector, modelOutput);
-
   modelOutput -= this->m_observations;  // Compute misfit
   modelOutput *= modelOutput;
   modelOutput /= this->m_covariance;  // Multiply by inverse covriance matrix

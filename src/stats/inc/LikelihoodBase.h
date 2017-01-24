@@ -99,8 +99,20 @@ public:
                              V * /*gradVector*/, M * /*hessianMatrix*/, V * /*hessianEffect*/) const
   { return std::exp(this->lnValue(domainVector)); }
 
+  virtual double lnValue(const V & domainVector) const;
+
 protected:
+
   const V & m_observations;
+
+  //! Compute log-likelihood value given the current parameters and model output
+  /*!
+   * Subclasses should override this method to compute the likelihood value, given
+   * the current parameters in domainVector and the output from the model evaluated
+   * at those parameter values. Note that this function may alter the values of
+   * modelOutput to reduce copying.
+   */
+  virtual double lnLikelihood(const V & domainVector, V & modelOutput) const =0;
 };
 
 }  // End namespace QUESO

@@ -66,17 +66,15 @@ public:
   virtual ~GaussianLikelihoodBlockDiagonalCovarianceRandomCoefficients();
   //@}
 
-  //! Logarithm of the value of the scalar function.
+protected:
+
+  //! Logarithm of the value of the likelihood function.
   /*!
    * The last \c n elements of \c domainVector, where \c n is the number of
    * blocks in the block diagonal covariance matrix, are treated as
    * hyperparameters and will be sample in a statistical inversion.
-   *
-   * The user need not concern themselves with handling these in the model
-   * evaluation routine, since they are handled by the likelihood evaluation
-   * routine.
    */
-  virtual double lnValue(const V & domainVector) const;
+  virtual double lnLikelihood(const V & domainVector, V & modelOutput) const;
 
 private:
   const GslBlockMatrix & m_covariance;

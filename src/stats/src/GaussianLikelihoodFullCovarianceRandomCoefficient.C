@@ -49,12 +49,9 @@ GaussianLikelihoodFullCovarianceRandomCoefficient<V, M>::~GaussianLikelihoodFull
 
 template<class V, class M>
 double
-GaussianLikelihoodFullCovarianceRandomCoefficient<V, M>::lnValue(const V & domainVector) const
+GaussianLikelihoodFullCovarianceRandomCoefficient<V, M>::lnLikelihood(const V & domainVector, V & modelOutput) const
 {
-  V modelOutput(this->m_observations, 0, 0);  // At least it's not a copy
   V weightedMisfit(this->m_observations, 0, 0);  // At least it's not a copy
-
-  this->evaluateModel(domainVector, modelOutput);
 
   // Compute misfit G(x) - y
   modelOutput -= this->m_observations;
