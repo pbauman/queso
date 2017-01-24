@@ -112,7 +112,8 @@ public:
    * be compared to actual observations when computing the likelihood functional.
    *
    * The first \c n components of \c domainVector are the model parameters.
-   * The rest of \c domainVector contains the hyperparameters, if any.  For
+   * The rest of \c domainVector contains the hyperparameters, if any. Mathematically, this
+   * function is \f$ f(m) \f$. For
    * example, in \c GaussianLikelihoodFullCovarainceRandomCoefficient, the last
    * component of \c domainVector contains the multiplicative coefficient of
    * the observational covariance matrix.  In this case, the user need not
@@ -126,6 +127,20 @@ public:
    */
   virtual void evaluateModel(const V & domainVector, V & modelOutput) const
   { this->evaluateModel(domainVector,NULL,modelOutput,NULL,NULL,NULL); }
+
+  //! Evaluates the user's model at the point \c (domainVector,marginalVector)
+  /*!
+   * Subclass implementations will fill up the \c modelOutput vector with output
+   * from the model. This function will be passed the current value of the parameters in domainVector
+   * and the current values of the marginalization parameters in marginalVector. Mathematically, this
+   * function is \f$ f(m,q) \f$. This function
+   * is only called if the likelihood includes marginalization. Otherwise,
+   * evaluateModel(const V & domainVector, V & modelOutput) will be called by lnValue().
+   *
+   * Not every user will do marginalization, so this is not a pure function, but there is
+   * no default, so we error if marginalization is attempted without overriding this function.
+   */
+  virtual void evaluateModel(const V & domainVector, const V & marginalVector, V & modelOutput) const;
 
   //! Actual value of the scalar function.
   virtual double actualValue(const V & domainVector, const V * /*domainDirection*/,

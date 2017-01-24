@@ -81,6 +81,20 @@ void LikelihoodBase<V, M>::evaluateModel(const V & domainVector, const V * domai
 }
 
 template<class V, class M>
+void LikelihoodBase<V, M>::evaluateModel(const V & domainVector,
+                                         const V & marginalVector,
+                                         V & modelOutput) const
+{
+  std::stringstream ss;
+  ss << "ERROR: evaluateModel(const V & domainVector, const V & marginalVector, V & modelOutput)"
+     << std::endl
+     << "       is not implemented! Please override this function in your subclass."
+     << std::endl;
+
+  queso_error_msg(ss.str());
+}
+
+template<class V, class M>
 double
 LikelihoodBase<V, M>::lnValue(const V & domainVector) const
 {
