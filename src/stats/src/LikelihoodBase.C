@@ -98,11 +98,54 @@ template<class V, class M>
 double
 LikelihoodBase<V, M>::lnValue(const V & domainVector) const
 {
-  V modelOutput(this->m_observations, 0, 0);  // At least it's not a copy
+  V modelOutput(this->m_observations, 0, 0);
 
-  this->evaluateModel(domainVector, modelOutput);
+  double lnLikelihood_value = 0.0;
 
-  return this->lnLikelihood(domainVector, modelOutput);
+  // If we're not marginalizing, then we just need f(m)
+  if( !m_marg_param_pdf )
+    {
+      this->evaluateModel(domainVector, modelOutput);
+
+      // Note modelOutput made be modified in lnLikelihood()
+      lnLikelihood_value = this->lnLikelihood(domainVector, modelOutput);
+    }
+  // Otherwise we're integrating over marginal parameter space
+  else
+    {
+      queso_assert(m_marg_integration);
+
+      const std::vector< typename QUESO::SharedPtr< V >::Type > & x =
+        this->m_marg_integration->positions();
+
+      const std::vector< double > & w = this->m_marg_integration->weights();
+
+      unsigned int n_qpoints = x.size();
+
+      for( unsigned int q = 0; q < n_qpoints; q++ )
+        {
+          this->evaluateModel(domainVector, *(x[q]), modelOutput);
+
+          // Note modelOutput made be modified in lnLikelihood()
+          double ln_pi_m_q = this->lnLikelihood(domainVector, modelOutput);
+
+          double ln_pi_q = 0.0;
+
+          // If we're not treating the marginal parameters pdf as
+          // the weighting function in the quadrature evaluation,
+          // then we need to also evaluate it.
+          if(!m_marg_pdf_is_weight_func)
+            this->m_marg_param_pdf->pdf().lnValue( *(x[q]) );
+
+          /*! \todo [PB]: We might want to play games with a log(\sum) identity
+                    if precision starts to become an issue. */
+          lnLikelihood_value += std::exp(ln_pi_m_q + ln_pi_q)*w[q];
+        }
+
+      lnLikelihood_value = std::log(lnLikelihood_value);
+    }
+
+  return lnLikelihood_value;
 }
 
 }  // End namespace QUESO
