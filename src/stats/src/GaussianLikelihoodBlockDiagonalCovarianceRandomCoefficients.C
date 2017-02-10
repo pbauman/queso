@@ -36,15 +36,20 @@ GaussianLikelihoodBlockDiagonalCovarianceRandomCoefficients<V, M>::GaussianLikel
   : LikelihoodBase<V, M>(prefix, domainSet, observations),
     m_covariance(covariance)
 {
-  unsigned int totalDim = 0;
+  this->checkDimConsistency(observations,m_covariance);
+}
 
-  for (unsigned int i = 0; i < this->m_covariance.numBlocks(); i++) {
-    totalDim += this->m_covariance.getBlock(i).numRowsLocal();
-  }
-
-  if (totalDim != observations.sizeLocal()) {
-    queso_error_msg("Covariance matrix not same dimension as observation vector");
-  }
+template<class V, class M>
+GaussianLikelihoodBlockDiagonalCovarianceRandomCoefficients<V, M>::GaussianLikelihoodBlockDiagonalCovarianceRandomCoefficients(
+    const char * prefix, const VectorSet<V, M> & domainSet,
+    const V & observations, const GslBlockMatrix & covariance,
+    typename SharedPtr<BaseVectorRV<V,M> >::Type & marg_param_pdf,
+    typename SharedPtr<MultiDQuadratureBase<V,M> >::Type & marg_integration,
+    bool marg_pdf_is_weight_func)
+  :  LikelihoodBase<V,M>(prefix,domainSet,observations,marg_param_pdf,marg_integration,marg_pdf_is_weight_func),
+    m_covariance(covariance)
+{
+  this->checkDimConsistency(observations,m_covariance);
 }
 
 template<class V, class M>
@@ -101,6 +106,22 @@ GaussianLikelihoodBlockDiagonalCovarianceRandomCoefficients<V, M>::lnLikelihood(
   double norm2_squared = modelOutput.sumOfComponents();  // This is square of 2-norm
 
   return -0.5 * norm2_squared - cov_norm_factor;
+}
+
+template<class V, class M>
+void
+GaussianLikelihoodBlockDiagonalCovarianceRandomCoefficients<V, M>::checkDimConsistency(
+    const V & observations, const GslBlockMatrix & covariance) const
+{
+  unsigned int totalDim = 0;
+
+  for (unsigned int i = 0; i < covariance.numBlocks(); i++) {
+    totalDim += covariance.getBlock(i).numRowsLocal();
+  }
+
+  if (totalDim != observations.sizeLocal()) {
+    queso_error_msg("Covariance matrix not same dimension as observation vector");
+  }
 }
 
 }  // End namespace QUESO
